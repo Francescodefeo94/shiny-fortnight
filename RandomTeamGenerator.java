@@ -129,7 +129,7 @@ public class RandomTeamGenerator {
 
   private static ArrayList<Member> getMembersFromFile() throws IOException {
     ArrayList<Member> names = new ArrayList<>();
-    FileReader reader = new FileReader("/demo/src/Players" + ".csv");
+    FileReader reader = new FileReader("Players" + ".csv");
     BufferedReader bufferedReader = new BufferedReader(reader);
     String line = "";
     while ((line = bufferedReader.readLine()) != null) {
