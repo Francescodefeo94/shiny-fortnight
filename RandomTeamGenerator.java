@@ -14,39 +14,6 @@ import java.util.stream.Collectors;
 
 public class RandomTeamGenerator {
 
-  public static void main(String[] args) throws IOException {
-
-    Map<String, List<Member>> teamMap = teamInitializer();
-    ArrayList<Member> names = getMembersFromFile();
-    final Map<Integer, List<Member>> orderedTeamPlayerMapByRank =
-      new TreeMap<>(names.stream().collect(Collectors.groupingBy(Member::getRank)));
-    orderedTeamPlayerMapByRank.forEach((k, v) -> {
-      while (!v.isEmpty()) {
-        Collections.shuffle(v);
-        final String key = getKey(teamMap);
-        final List<Member> members = teamMap.get(key);
-        members.add(v.remove(0));
-      }
-    });
-    teamMap.forEach((k, v) -> System.out.println(k + "#" + v.size() + ": "+"\n\r" + v.stream()
-                                                                                     .map(
-                                                                                       e -> e.getName() + "; " + e.getRole().desc +
-                                                                                              "; "+e.getEmail())
-                                                                                     .collect(Collectors.joining("\n\r"))));
-  }
-
-  private static Map<String, List<Member>> teamInitializer() {
-    System.out.println("Enter the number of teams you want to form: ");
-    Scanner input = new Scanner(System.in);
-    int n = input.nextInt();
-    System.out.println("Set up " + n + " Teams");
-    Map<String, List<Member>> teamMap = new HashMap<>();
-    for (int i = 0; i < n; i++) {
-      teamMap.put("Team" + i, new ArrayList<>());
-    }
-    return teamMap;
-  }
-
   public static class Member {
 
     private String name;
@@ -95,9 +62,9 @@ public class RandomTeamGenerator {
   }
 
   public enum Role {
-    ATT(5, "ATTACCANTE"),
-    DIF(1, "DIFENSORE"),
-    PORT(10, "PORTIERE");
+    ATT(5, "Forward"),
+    DIF(1, "Defender"),
+    PORT(10, "Goalkeeper");
     private Integer id;
     private String desc;
 
@@ -127,9 +94,48 @@ public class RandomTeamGenerator {
     }
   }
 
+  public static void main(String[] args) throws IOException {
+
+    Map<String, List<Member>> teamMap = teamInitializer();
+    ArrayList<Member> names = getMembersFromFile();
+    final Map<Integer, List<Member>> orderedTeamPlayerMapByRank =
+      new TreeMap<>(names.stream().collect(Collectors.groupingBy(Member::getRank)));
+    orderedTeamPlayerMapByRank.forEach((k, v) -> {
+      fillRankedRandomTeams(teamMap, v);
+    });
+    teamMap.forEach((k, v) -> printTeams(k, v));
+  }
+
+  private static Map<String, List<Member>> teamInitializer() {
+    System.out.println("Enter the number of teams you want to form: ");
+    Scanner input = new Scanner(System.in);
+    int n = input.nextInt();
+    System.out.println("Set up " + n + " Teams");
+    Map<String, List<Member>> teamMap = new HashMap<>();
+    for (int i = 0; i < n; i++) {
+      teamMap.put("Team" + i, new ArrayList<>());
+    }
+    return teamMap;
+  }
+
+  private static void printTeams(String k, List<Member> v) {
+    System.out.println(k + "#" + v.size() + ": " + "\n\r" + v.stream()
+                                                              .map(e -> e.getName() + "; " + e.getRole().desc + "; " + e.getEmail())
+                                                              .collect(Collectors.joining("\n\r")));
+  }
+
+  private static void fillRankedRandomTeams(Map<String, List<Member>> teamMap, List<Member> v) {
+    while (!v.isEmpty()) {
+      Collections.shuffle(v);
+      final String key = getKey(teamMap);
+      final List<Member> members = teamMap.get(key);
+      members.add(v.remove(0));
+    }
+  }
+
   private static ArrayList<Member> getMembersFromFile() throws IOException {
     ArrayList<Member> names = new ArrayList<>();
-    FileReader reader = new FileReader("Players" + ".csv");
+    FileReader reader = new FileReader("/home/francesco" + "/demo/src/Players" + ".csv");
     BufferedReader bufferedReader = new BufferedReader(reader);
     String line = "";
     while ((line = bufferedReader.readLine()) != null) {
